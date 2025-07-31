@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     DOCKERHUB_USER = 'sanjeebnepal'
+    FRONTEND_API_URL = 'http://4.242.19.71:32000'
     BACKEND_IMAGE = "${DOCKERHUB_USER}/capstone-backend:v${BUILD_NUMBER}"
     FRONTEND_IMAGE = "${DOCKERHUB_USER}/capstone-frontend:v${BUILD_NUMBER}"
   }
@@ -22,7 +23,7 @@ pipeline {
 
     stage('Build Frontend Image') {
       steps {
-        sh 'docker build -t $FRONTEND_IMAGE ./frontend'
+        sh 'docker build --build-arg REACT_APP_API_URL=${FRONTEND_API_URL} -t $FRONTEND_IMAGE ./frontend'
       }
     }
 
