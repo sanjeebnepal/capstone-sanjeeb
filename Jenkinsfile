@@ -42,8 +42,8 @@ pipeline {
       steps {
         sh '''
         export KUBECONFIG=/var/lib/jenkins/.kube/config
-        sed "s|IMAGE_BACKEND|$BACKEND_IMAGE|" k8s/backend-deployment.yaml | kubectl apply -f -
-        sed "s|IMAGE_FRONTEND|$FRONTEND_IMAGE|" k8s/frontend-deployment.yaml | kubectl apply -f -
+        sed "s|IMAGE_BACKEND|$BACKEND_IMAGE|" k8s/backend-deployment.yml | kubectl apply -f -
+        sed "s|IMAGE_FRONTEND|$FRONTEND_IMAGE|" k8s/frontend-deployment.yml | kubectl apply -f -
         '''
         }
     }
