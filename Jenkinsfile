@@ -53,7 +53,7 @@ pipeline {
       echo "✅ Deployment to K3s successful!"
     }
     failure {
-      echo "❌ Deployment failed."
+      echo "❌ Deployment failed." /damn
     }
   }
 }
