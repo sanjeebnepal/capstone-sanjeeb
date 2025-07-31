@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: sanjeebnepal/capstone-frontend:v4   # your pre-built imagen version 4
+          image: IMAGE_FRONTEND
           ports:
             - containerPort: 80
 
