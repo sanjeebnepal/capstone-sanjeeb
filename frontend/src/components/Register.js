@@ -6,7 +6,7 @@ const weatherBg =
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80";
 
 const Register = () => {
-  const [form, setForm] = useState({ id: "", username: "", password: "", email: "" });
+  const [form, setForm] = useState({ username: "", password: "", email: "" });
   const { register, loading, error } = useRegister();
   const navigate = useNavigate();
 
@@ -32,14 +32,6 @@ const Register = () => {
           <span role="img" aria-label="weather" style={{ fontSize: "2rem" }}>🌧️</span>
           <h2>Create Your Account</h2>
         </div>
-        <input
-          className="register-input"
-          name="id"
-          onChange={handleChange}
-          type="number"
-          placeholder="ID"
-          required
-        />
         <input
           className="register-input"
           name="username"

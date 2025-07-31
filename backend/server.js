@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-const db = require('./db'); // make sure db is promise-based
+const db = require('./db'); // promise-based db module
 require('dotenv').config();
 
 const app = express();
@@ -9,22 +9,22 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/api/register', async (req, res) => {
-  const { id, username, password, email } = req.body;
+  const { username, password, email } = req.body;
 
-  if (!id || !username || !password || !email) {
-    return res.status(400).json({ error: 'All fields (id, username, password, email) are required' });
+  if (!username || !password || !email) {
+    return res.status(400).json({ error: 'All fields (username, password, email) are required' });
   }
 
   try {
-    const [existing] = await db.query('SELECT id FROM userdatabase WHERE username = ?', [username]);
+    const existing = await db.query('SELECT id FROM userdatabase WHERE username = @param0', [username]);
     if (existing.length > 0) {
       return res.status(400).json({ error: 'Username already exists' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
     await db.query(
-      'INSERT INTO userdatabase (id, username, password, email) VALUES (?, ?, ?, ?)',
-      [id, username, passwordHash, email]
+      'INSERT INTO userdatabase (username, password, email) VALUES (@param0, @param1, @param2)',
+      [username, passwordHash, email]
     );
 
     res.json({ success: true });
@@ -42,7 +42,7 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
-    const [rows] = await db.query('SELECT * FROM userdatabase WHERE username = ?', [username]);
+    const rows = await db.query('SELECT * FROM userdatabase WHERE username = @param0', [username]);
     const user = rows[0];
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -68,7 +68,7 @@ app.post('/api/login', async (req, res) => {
 
 app.get('/api/user', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM userdatabase LIMIT 1');
+    const rows = await db.query('SELECT TOP 1 * FROM userdatabase');
     if (rows.length === 0) {
       return res.status(404).json({ error: 'No user found' });
     }

@@ -1,29 +1,33 @@
-const mysql = require('mysql2/promise');
-const fs = require('fs');
+const sql = require('mssql');
 require('dotenv').config();
 
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
+const config = {
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,    
+  password: process.env.DB_PASS,
+  server: process.env.DB_HOST,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  // ssl: {
-  //   ca: fs.readFileSync('./DigiCertGlobalRootCA.crt.pem') 
-  // },
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+  port: parseInt(process.env.DB_PORT, 10) || 1433,
+  options: {
+    encrypt: true, // Required for Azure SQL
+    trustServerCertificate: false
+  }
+};
 
-db.getConnection()
-  .then((connection) => {
-    console.log('✅ Connected to MySQL Azure database!');
-    connection.release();
-  })
-  .catch((err) => {
-    console.error('❌ Error connecting to MySQL: ', err);
-    return;
-  });
+const pool = new sql.ConnectionPool(config);
+const poolConnect = pool.connect();
 
-module.exports = db;
+poolConnect
+  .then(() => console.log('✅ Connected to Azure SQL Database!'))
+  .catch(err => console.error('❌ Error connecting to Azure SQL:', err));
+
+module.exports = {
+  query: async (query, params = []) => {
+    await poolConnect;
+    const request = pool.request();
+    params.forEach((param, i) => {
+      request.input(`param${i}`, param);
+    });
+    const result = await request.query(query);
+    return result.recordset;
+  }
+};
