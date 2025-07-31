@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git branch: 'main', git credentialsId: 'github-creds', url: 'https://github.com/sanjeebnepal/capstone-sanjeeb.git'
+        git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/sanjeebnepal/capstone-sanjeeb.git'
       }
     }
 
