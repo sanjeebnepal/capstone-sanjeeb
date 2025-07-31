@@ -1,3 +1,4 @@
+# ConfigMap for DB config
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,23 +10,25 @@ data:
 
 ---
 
+# Secret for DB credentials
 apiVersion: v1
 kind: Secret
 metadata:
   name: backend-secret
 type: Opaque
-stringData:
-  DB_USER: c2FuamVlYjE=
-  DB_PASS: U2FuamFpZGFkYUAyMDU1
+data:
+  DB_USER: c2FuamVlYjE=           # base64 for "sanjeeb1"
+  DB_PASS: U2FuamFpZGFkYUAyMDU1   # base64 for "Sanjaidada@2055"
 
 ---
 
+# Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 1
+  replicas: 1  # Keep 1 for easier debugging
   selector:
     matchLabels:
       app: backend
@@ -36,7 +39,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: sanjeebnepal/capstone-backend:v1
+          image: sanjeebnepal/capstone-backend:v5
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           env:
@@ -65,9 +69,22 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: DB_PASS
+          readinessProbe:
+            httpGet:
+              path: /api/user
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/user
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
 
 ---
 
+# Backend NodePort Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -75,8 +92,8 @@ metadata:
 spec:
   selector:
     app: backend
+  type: NodePort
   ports:
-    - protocol: TCP
-      port: 80           # Service port
-      targetPort: 5000   # Container port
-  type: ClusterIP       # Change to LoadBalancer if you want external access
+    - port: 5000
+      targetPort: 5000
+      nodePort: 32000
